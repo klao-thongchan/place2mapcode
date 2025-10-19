@@ -1,0 +1,7 @@
+{
+  "name": "Map Code & Phone Finder",
+  "description": "An automation tool to find the phone number and Japan Mapcode for any given place. It uses Google Maps for location data and then retrieves the corresponding Mapcode, presenting the results in a table ready to be copied into a spreadsheet.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
