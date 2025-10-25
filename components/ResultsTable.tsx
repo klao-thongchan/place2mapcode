@@ -13,7 +13,7 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results }) => {
         if (results.length === 0) return;
 
         const tsvContent = results
-            .map(r => `${r.placeName}\t${r.phoneNumber}\t${r.mapCode}\t${r.address}`)
+            .map(r => `${r.placeName}\t${r.mapCode}\t${r.phoneNumber}\t${r.address}`)
             .join('\n');
 
         navigator.clipboard.writeText(tsvContent).then(() => {
@@ -61,8 +61,8 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results }) => {
                     <thead className="bg-gray-50">
                         <tr>
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Place Name</th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telephone</th>
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Map Code</th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telephone</th>
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
                         </tr>
                     </thead>
@@ -70,9 +70,19 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results }) => {
                         {results.map((result) => (
                             <tr key={result.id}>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{result.placeName}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{result.phoneNumber}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">{result.mapCode}</td>
-                                <td className="px-6 py-4 whitespace-normal text-sm text-gray-500">{result.address}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{result.phoneNumber}</td>
+                                <td className="px-6 py-4 whitespace-normal text-sm text-gray-500">
+                                    <a
+                                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(result.address)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-600 hover:underline hover:text-blue-800 transition duration-150 ease-in-out"
+                                        aria-label={`View ${result.placeName} on Google Maps`}
+                                    >
+                                        {result.address}
+                                    </a>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
