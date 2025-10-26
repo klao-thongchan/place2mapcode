@@ -1,13 +1,14 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import type { PlaceData } from '../types';
 
 interface ResultsTableProps {
   results: PlaceData[];
+  onClearResults: () => void;
 }
 
-const ResultsTable: React.FC<ResultsTableProps> = ({ results }) => {
-    const [copySuccess, setCopySuccess] = React.useState('');
+const ResultsTable: React.FC<ResultsTableProps> = ({ results, onClearResults }) => {
+    const [copySuccess, setCopySuccess] = useState('');
+    const [isConfirmingClear, setIsConfirmingClear] = useState(false);
 
     const copyToClipboard = () => {
         if (results.length === 0) return;
@@ -24,6 +25,11 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results }) => {
             setTimeout(() => setCopySuccess(''), 2000);
         });
     };
+
+    const handleClear = () => {
+        onClearResults();
+        setIsConfirmingClear(false);
+    }
     
     if (results.length === 0) {
         return (
@@ -41,18 +47,42 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results }) => {
         <div className="bg-white p-6 rounded-lg shadow-lg">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold text-gray-800">Results</h2>
-                <div className="relative">
-                    <button
-                        onClick={copyToClipboard}
-                        className="px-4 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-200 flex items-center"
-                    >
-                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
-                          <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
-                        </svg>
-                        Copy for Sheet
-                    </button>
-                    {copySuccess && <span className="absolute -top-8 right-0 bg-gray-800 text-white text-xs rounded py-1 px-2">{copySuccess}</span>}
+                <div className="flex items-center gap-4">
+                    <div className="relative">
+                        <button
+                            onClick={copyToClipboard}
+                            className="px-4 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition duration-200 flex items-center"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                            <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                            </svg>
+                            Copy for Sheet
+                        </button>
+                        {copySuccess && <span className="absolute -top-8 right-0 bg-gray-800 text-white text-xs rounded py-1 px-2">{copySuccess}</span>}
+                    </div>
+                     <div>
+                        {isConfirmingClear ? (
+                             <div className="flex items-center gap-2">
+                                <button onClick={handleClear} className="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-200">
+                                    Confirm
+                                </button>
+                                <button onClick={() => setIsConfirmingClear(false)} className="px-4 py-2 bg-gray-400 text-white font-semibold rounded-lg hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition duration-200">
+                                    Cancel
+                                </button>
+                             </div>
+                        ) : (
+                             <button
+                                onClick={() => setIsConfirmingClear(true)}
+                                className="px-4 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition duration-200 flex items-center"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                                </svg>
+                                Clear Results
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
             <p className="text-sm text-gray-500 mb-4">The Japan Mapcode is generated based on the address found and its accuracy may vary. Results are formatted for direct pasting into Google Sheets or Excel.</p>

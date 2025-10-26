@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { fetchPlaceDetails, findPossiblePlaces } from './services/geminiService';
 import type { PlaceData, PossiblePlace } from './types';
 import { useGeolocation } from './hooks/useGeolocation';
@@ -8,12 +8,31 @@ import ResultsTable from './components/ResultsTable';
 import ErrorAlert from './components/ErrorAlert';
 import MapSuggestions from './components/MapSuggestions';
 
+const CACHE_KEY = 'mapCodeFinderResults';
+
 const App: React.FC = () => {
-    const [results, setResults] = useState<PlaceData[]>([]);
+    const [results, setResults] = useState<PlaceData[]>(() => {
+        try {
+            const cachedData = localStorage.getItem(CACHE_KEY);
+            return cachedData ? JSON.parse(cachedData) : [];
+        } catch (error) {
+            console.error("Failed to parse cached results:", error);
+            return [];
+        }
+    });
+
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [possiblePlaces, setPossiblePlaces] = useState<PossiblePlace[]>([]);
     const { location, error: geolocationError } = useGeolocation();
+
+    useEffect(() => {
+        try {
+            localStorage.setItem(CACHE_KEY, JSON.stringify(results));
+        } catch (error) {
+            console.error("Failed to save results to cache:", error);
+        }
+    }, [results]);
 
     const handleSearch = useCallback(async (placeName: string) => {
         if (!location) {
@@ -57,6 +76,10 @@ const App: React.FC = () => {
         handleSearch(placeName);
     }, [handleSearch]);
 
+    const handleClearResults = useCallback(() => {
+        setResults([]);
+    }, []);
+
 
     return (
         <div className="min-h-screen bg-gray-100 font-sans">
@@ -77,7 +100,7 @@ const App: React.FC = () => {
                                 />
                             )}
                             
-                            <ResultsTable results={results} />
+                            <ResultsTable results={results} onClearResults={handleClearResults} />
                         </div>
                     </div>
                 </div>
