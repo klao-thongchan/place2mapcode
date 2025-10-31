@@ -9,6 +9,7 @@ interface ResultsTableProps {
 const ResultsTable: React.FC<ResultsTableProps> = ({ results, onClearResults }) => {
     const [copySuccess, setCopySuccess] = useState('');
     const [isConfirmingClear, setIsConfirmingClear] = useState(false);
+    const [copiedRowId, setCopiedRowId] = useState<string | null>(null);
 
     const copyToClipboard = () => {
         if (results.length === 0) return;
@@ -23,6 +24,16 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results, onClearResults }) 
         }, () => {
             setCopySuccess('Failed to copy.');
             setTimeout(() => setCopySuccess(''), 2000);
+        });
+    };
+
+    const copyRowToClipboard = (row: PlaceData) => {
+        const tsvContent = `${row.placeName}\t${row.mapCode}\t${row.phoneNumber}\t${row.address}`;
+        navigator.clipboard.writeText(tsvContent).then(() => {
+            setCopiedRowId(row.id);
+            setTimeout(() => setCopiedRowId(null), 2000);
+        }, () => {
+            // You could add failure feedback here if desired
         });
     };
 
@@ -94,6 +105,7 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results, onClearResults }) 
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Map Code</th>
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telephone</th>
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
+                            <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -112,6 +124,23 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results, onClearResults }) 
                                     >
                                         {result.address}
                                     </a>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                    <button
+                                        onClick={() => copyRowToClipboard(result)}
+                                        className="text-gray-500 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-md p-1 transition-colors duration-200"
+                                        aria-label={`Copy row for ${result.placeName}`}
+                                    >
+                                        {copiedRowId === result.id ? (
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        ) : (
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                            </svg>
+                                        )}
+                                    </button>
                                 </td>
                             </tr>
                         ))}
